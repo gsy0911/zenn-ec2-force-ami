@@ -1,0 +1,1 @@
+# zenn-ec2-force-ami
