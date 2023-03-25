@@ -1,6 +1,5 @@
 import {
   App,
-  Duration,
   Stack,
   StackProps,
   aws_ec2,
@@ -44,22 +43,15 @@ export class Ec2SsmStack extends Stack {
     })
 
     /** 実行環境としてのEC2 */
-    const machineImage = aws_ec2.MachineImage.latestAmazonLinux({
-      generation: aws_ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      edition: aws_ec2.AmazonLinuxEdition.STANDARD,
-      kernel: aws_ec2.AmazonLinuxKernel.KERNEL5_X,
-      virtualization: aws_ec2.AmazonLinuxVirt.HVM,
-      storage: aws_ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
-      cpuType: aws_ec2.AmazonLinuxCpuType.X86_64,
+    new aws_ec2.BastionHostLinux(this, 'BastionHost', {
+      vpc,
+      blockDevices: [{
+        deviceName: '/dev/sda1',
+        volume: aws_ec2.BlockDeviceVolume.ebs(10, {
+          encrypted: true,
+        }),
+      }],
     });
-    new aws_ec2.Instance(this, "ssm-instance", {
-      instanceType: new aws_ec2.InstanceType("t3.micro"),
-      instanceName: `ssm-example-${params.applicationSuffix}`,
-      vpc: vpc,
-      machineImage,
-      role,
-      securityGroup,
-    })
 
   }
 }
